@@ -87,19 +87,12 @@ def compose_email(email_address, recipient_address, subject, message, attachment
     return msg
 
 def main():
-    # email_address = input('Enter email address: ')
-    # email_password = getpass('Enter email password: ')
-    # recipients_file = input('Enter the filepath of recipients: ')
-    # subject = input('Enter the email subject: ')
-    # message = input('Enter the email message/body: ')
-    # attachment_path = input('Enter file attachment path (optional): ')
-
-    email_address = 'beastdemonkiller@gmail.com'
-    email_password = 'karan2480'
-    recipients_file = r'D:\Code Projects\Python Projects\Assignments\Week 2\Advanced\recipients.txt'
-    subject = 'Test Subject'
-    message = 'This is a test email'
-    attachment_path = 'none'
+    email_address = input('Enter email address: ')
+    email_password = getpass('Enter email password: ')
+    recipients_file = input('Enter the filepath of recipients: ')
+    subject = input('Enter the email subject: ')
+    message = input('Enter the email message/body: ')
+    attachment_path = input('Enter file attachment path (optional): ')
 
     recipient_email_addresses = get_recipients(recipients_file)
 
