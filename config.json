@@ -1,0 +1,7 @@
+{
+  "email_address": "MyEmail",
+  "recipients_file": "default_recipients.txt",
+  "subject": "Daily Report",
+  "message": "Default Message",
+  "attachment_path": "./reports/report.txt"
+}

@@ -16,12 +16,17 @@
 
 import smtplib
 import ssl
-from getpass import getpass
+import json
 import os
 import re
+from getpass import getpass
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
+
+
+email_password = os.getenv('PASSWORD_EMAIL')  # System variable
+
 
 def get_recipients(filename):
     try:
@@ -38,6 +43,7 @@ def get_recipients(filename):
         print('Error: File not found.')
         return []
 
+
 def sanitize_email(email_address):
     email_pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
 
@@ -47,6 +53,7 @@ def sanitize_email(email_address):
         with open('invalid_email_addresses.log', 'a') as log_file:
             log_file.write(f'Invalid email: {email_address}\n')
         return None
+
 
 def send_email(email_address, email_password, recipient_addresses, subject, message, attachment_path = None):
     try:
@@ -69,7 +76,8 @@ def send_email(email_address, email_password, recipient_addresses, subject, mess
     except Exception as e:
         print(f'Error: {e}')
         return False
-        
+
+
 def compose_email(email_address, recipient_address, subject, message, attachment_path = None):
     msg = MIMEMultipart()
     msg['From'] = email_address
@@ -77,8 +85,13 @@ def compose_email(email_address, recipient_address, subject, message, attachment
     msg['Subject'] = subject
 
     msg.attach(MIMEText(message, 'plain'))
+    print(f"Attempting to open file at: {attachment_path}")
+    if not os.path.exists(attachment_path):
+        print(f"No file found at {attachment_path}")
+        return
 
     if attachment_path:
+
         with open(attachment_path, 'rb') as attachment_file:
             part = MIMEApplication(attachment_file.read(), Name=os.path.basename(attachment_path))
             part['Content-Disposition'] = f'attachment; filename="{os.path.basename(attachment_path)}"'
@@ -86,17 +99,19 @@ def compose_email(email_address, recipient_address, subject, message, attachment
 
     return msg
 
-def main():
-    email_address = input('Enter email address: ')
-    email_password = getpass('Enter email password: ')
-    recipients_file = input('Enter the filepath of recipients: ')
-    subject = input('Enter the email subject: ')
-    message = input('Enter the email message/body: ')
-    attachment_path = input('Enter file attachment path (optional): ')
 
+def main(email_address, email_password, recipients_file, subject, message, attachment_path):
     recipient_email_addresses = get_recipients(recipients_file)
+    send_email(email_address, email_password, recipient_email_addresses, subject, message, attachment_path)
 
-    success = send_email(email_address, email_password, recipient_email_addresses, subject, message, attachment_path)
 
 if __name__ == '__main__':
-    main()
+    with open('config.json', 'r') as f:
+        config = json.load(f)
+
+    email_address = config.get('email_address', 'default_email@gmail.com')
+    recipients_file = config.get('recipients_file', 'default_recipients.txt')
+    subject = config.get('subject', 'Default Subject')
+    message = config.get('message', 'Default Message')
+    attachment_path = config.get('attachment_path')  # This can be None
+    main(email_address, email_password, recipients_file, subject, message, attachment_path)
